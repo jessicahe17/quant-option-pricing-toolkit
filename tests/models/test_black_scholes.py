@@ -100,4 +100,102 @@ def test_boundary_depp_otm_put(underlying):
 
     price = model.price(put, market)
     assert price < 1e-6
-    
+
+
+def test_dividend_yield_reduces_call_value(underlying):
+    option = Option(
+        underlying=underlying,
+        strike=100,
+        expiration_date=date(2027, 1, 1),
+        option_type=OptionType.CALL,
+        exercise_style=ExerciseStyle.EUROPEAN
+        )
+
+    market_without_dividend = MarketEnvironment(
+        {
+            underlying: MarketData(
+            spot=100,
+            volatility=0.2,
+            risk_free_rate=0.05,
+            dividend_yield=0
+            )
+            },
+        date(2026, 1, 1)
+        )
+
+    market_with_dividend = MarketEnvironment(
+        {
+            underlying: MarketData(
+            spot=100,
+            volatility=0.2,
+            risk_free_rate=0.05,
+            dividend_yield=0.03
+            )
+            },
+        date(2026, 1, 1)
+        )
+
+    model = BlackScholesModel()
+
+    price_without_dividend = model.price(option, market_without_dividend)
+    price_with_dividend = model.price(option, market_with_dividend)
+
+    assert price_with_dividend < price_without_dividend
+
+
+def test_expired_call_returns_payoff(underlying):
+    option = Option(
+        underlying=underlying,
+        strike=100,
+        expiration_date=date(2026, 1, 1),
+        option_type=OptionType.CALL,
+        exercise_style=ExerciseStyle.EUROPEAN
+        )
+
+
+    market = MarketEnvironment(
+        {
+            underlying: MarketData(
+            spot=120,
+            volatility=0.2,
+            risk_free_rate=0.05,
+            dividend_yield=0
+            )
+            },
+        date(2026, 1, 1)
+        )
+
+    price = BlackScholesModel().price(option, market)
+
+    assert price == pytest.approx(20)
+
+
+def test_zero_volatility_price(underlying):
+    option = Option(
+        underlying=underlying,
+        strike=100,
+        expiration_date=date(2027, 1, 1),
+        option_type=OptionType.CALL,
+        exercise_style=ExerciseStyle.EUROPEAN
+        )
+
+
+    market = MarketEnvironment(
+        {
+            underlying: MarketData(
+            spot=100,
+            volatility=0,
+            risk_free_rate=0.05,
+            dividend_yield=0
+            )
+            },
+        date(2026, 1, 1)
+        )
+
+
+    model = BlackScholesModel()
+    price = model.price(option, market)
+    terminal_spot = (100 * np.exp(0.05 * 1))
+    expected = max(terminal_spot - 100, 0) * np.exp(-0.05)
+
+    assert price == pytest.approx(expected)

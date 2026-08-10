@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import date
 from enum import Enum
-
+from option_pricing.instruments.underlying import Underlying
 
 class OptionType(Enum):
     CALL = "call"
@@ -17,7 +17,7 @@ class ExerciseStyle(Enum):
 class Option:
     """Represents an option contract."""
 
-    underlying: object
+    underlying: Underlying
     strike: float
     expiration_date: date
     option_type: OptionType
@@ -25,6 +25,9 @@ class Option:
     multiplier: float = 100
 
     def __post_init__(self):
+        if not isinstance(self.underlying, Underlying):
+            raise TypeError("Underlying must be an Underlying object.")
+
         if self.strike <= 0:
             raise ValueError("Strike price must be positive.")
 
@@ -59,3 +62,18 @@ class Option:
         becomes expired only after that date.
         """
         return as_of > self.expiration_date
+
+
+    def payoff(self, spot: float) -> float:
+        if not isinstance(spot, (int, float)):
+            raise TypeError("Spot price must be numeric.")
+        
+        if spot < 0:
+            raise ValueError("Spot price cannot be negative.")
+
+        if self.option_type == OptionType.CALL:
+            return max(spot - self.strike, 0)
+        elif self.option_type == OptionType.PUT:
+            return max(self.strike - spot, 0)
+
+        raise ValueError("Unsupported option type.")

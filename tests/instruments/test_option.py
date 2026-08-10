@@ -2,11 +2,12 @@ import pytest
 from datetime import date
 from dataclasses import FrozenInstanceError
 from option_pricing.instruments.option import Option, OptionType, ExerciseStyle
+from option_pricing.instruments.underlying import Equity
 
 def test_valid_option_creation():
     """Test valid creation and default multiplier."""
 
-    aapl = object()
+    aapl = Equity("AAPL", "NASDAQ")
 
     opt = Option(
         underlying=aapl,
@@ -27,7 +28,7 @@ def test_valid_option_creation():
 
 
 def test_invalid_strike():
-    aapl = object()
+    aapl = Equity("AAPL", "NASDAQ")
     expiration = date(2026, 11, 30)
     
     with pytest.raises(ValueError, match="Strike price must be positive."):
@@ -38,10 +39,9 @@ def test_invalid_strike():
 
 
 def test_invalid_multiplier():
-    aapl = object()
+    aapl = Equity("AAPL", "NASDAQ")
     expiration = date(2026, 12, 30)
 
-    
     with pytest.raises(ValueError, match="Multiplier must be positive."):
         Option(aapl, 120, expiration, OptionType.CALL, ExerciseStyle.AMERICAN, multiplier=0)
         
@@ -50,7 +50,7 @@ def test_invalid_multiplier():
 
 
 def test_invalid_option_type():
-    aapl = object()
+    aapl = Equity("AAPL", "NASDAQ")
 
     with pytest.raises(TypeError, match="option_type must be an OptionType."):
         Option(aapl, 120, date(2026, 12, 30), "CALL", ExerciseStyle.AMERICAN)
@@ -63,7 +63,7 @@ def test_invalid_option_type():
 
 
 def test_invalid_exercise_style():
-    aapl = object()
+    aapl = Equity("AAPL", "NASDAQ")
 
     with pytest.raises(TypeError, match="exercise_style must be an ExerciseStyle."):
         Option(aapl, 140, date(2027, 8, 30), OptionType.CALL, "AMERICAN")
@@ -73,7 +73,7 @@ def test_invalid_exercise_style():
 
 
 def test_immutability():
-    aapl = object()
+    aapl = Equity("AAPL", "NASDAQ")
     opt = Option(aapl, 150, date(2026, 10, 30), OptionType.CALL, ExerciseStyle.AMERICAN)
     
     with pytest.raises(FrozenInstanceError):
@@ -87,7 +87,7 @@ def test_immutability():
 
 
 def test_is_call_and_is_put():
-    aapl = object()
+    aapl = Equity("AAPL", "NASDAQ")
     expiration = date(2026, 12, 31)
     
     call_opt = Option(aapl, 140, expiration, OptionType.CALL, ExerciseStyle.EUROPEAN)
@@ -100,10 +100,44 @@ def test_is_call_and_is_put():
 
 
 def test_is_expired():
-    aapl = object()
+    aapl = Equity("AAPL", "NASDAQ")
     expiration = date(2026, 10, 30)
     opt = Option(aapl, 160, expiration, OptionType.CALL, ExerciseStyle.AMERICAN)
     
     assert opt.is_expired(date(2026, 10, 29)) is False
     assert opt.is_expired(date(2026, 10, 30)) is False
     assert opt.is_expired(date(2026, 10, 31)) is True
+
+
+def test_call_payoff():
+    aapl = Equity("AAPL", "NASDAQ")
+    expiration = date(2026, 10, 30)
+    call = Option(aapl, 100, expiration, OptionType.CALL, ExerciseStyle.AMERICAN)
+
+    assert call.payoff(120) == 20
+    assert call.payoff(101) == 1
+    assert call.payoff(100) == 0
+    assert call.payoff(99) == 0
+
+
+def test_put_payoff():
+    aapl = Equity("AAPL", "NASDAQ")
+    expiration = date(2026, 10, 30)
+    put = Option(aapl, 100, expiration, OptionType.PUT, ExerciseStyle.AMERICAN)
+
+    assert put.payoff(80) == 20
+    assert put.payoff(99) == 1
+    assert put.payoff(100) == 0
+    assert put.payoff(101) == 0
+
+
+def test_invalid_spot():
+    aapl = Equity("AAPL", "NASDAQ")
+    expiration = date(2026, 10, 30)
+    opt = Option(aapl, 160, expiration, OptionType.CALL, ExerciseStyle.AMERICAN)
+
+    with pytest.raises(ValueError, match="Spot price cannot be negative."):
+        opt.payoff(-10)
+
+    with pytest.raises(TypeError, match="Spot price must be numeric."):
+        opt.payoff("100")
