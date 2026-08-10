@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Mapping
 from types import MappingProxyType
+from datetime import date
 
 from option_pricing.instruments.underlying import Underlying
 from option_pricing.market.market_data import MarketData
@@ -14,6 +15,7 @@ class MarketEnvironment:
     """
 
     data: Mapping[Underlying, MarketData]
+    valuation_date: date
 
 
     def __post_init__(self):
@@ -23,6 +25,9 @@ class MarketEnvironment:
 
         if not self.data:
             raise ValueError("Market environment cannot be empty.")
+
+        if not isinstance(self.valuation_date, date):
+            raise TypeError("Valuation date must be a date object.")
 
         for underlying, market_data in self.data.items():
             if not isinstance(underlying, Underlying):
@@ -37,4 +42,4 @@ class MarketEnvironment:
         try:
             return self.data[underlying]
         except KeyError:
-            raise KeyError(f"No market data found for {underlying.symbol}.")
+            raise KeyError(f"No market data found for {underlying.symbol}.") from None
