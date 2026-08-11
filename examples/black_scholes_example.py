@@ -47,11 +47,18 @@ def main():
             )
 
 
-    # 4. Price option
+    # 4. Evaluate option
     model = BlackScholesModel()
-    price = model.price(call_option, market)
+    result = model.evaluate(call_option, market)
 
-    print(f"Black-Scholes call price: {price:.4f}")
+
+    # 5. Display pricing result
+    print(f"Option price: {result.price:.4f}")
+    print(f"Delta: {result.greeks.delta:.4f}")
+    print(f"Gamma: {result.greeks.gamma:.6f}")
+    print(f"Vega:  {result.greeks.vega:.4f}")
+    print(f"Theta: {result.greeks.theta:.4f}")
+    print(f"Rho:   {result.greeks.rho:.4f}")
 
 
 if __name__ == "__main__":
