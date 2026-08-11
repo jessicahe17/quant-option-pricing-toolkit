@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from option_pricing.instruments.option import Option
 from option_pricing.market.market_environment import MarketEnvironment
-
+from option_pricing.models.results import PricingResult
 
 class PricingModel(ABC):
     """
@@ -12,7 +12,7 @@ class PricingModel(ABC):
     """
 
 @abstractmethod
-def price(self, option: Option, market: MarketEnvironment) -> float:
+def evaluate(self, option: Option, market: MarketEnvironment) -> PricingResult:
     """
     Calculate the theoretical price of an option.
 
@@ -26,8 +26,8 @@ def price(self, option: Option, market: MarketEnvironment) -> float:
 
     Returns
     -------
-    float:
-        Theoretical option price.
+    PricingResult:
+        Theoretical option value and associated risk sensitivities.
     """
 
     pass
