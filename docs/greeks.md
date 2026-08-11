@@ -1,0 +1,133 @@
+# Black-Scholes Greeks
+
+## Overview
+
+The Black-Scholes model provides analytical sensitivities of option value with
+respect to key market variables. These sensitivities are known as the Greeks.
+
+This library currently supports:
+
+- Delta
+- Gamma
+- Vega
+- Theta
+- Rho
+
+All Greeks are calculated analytically within the Black-Scholes framework.
+
+
+
+# Conventions
+
+The Greeks returned by this library follow mathematical definitions and are
+reported per underlying unit.
+
+The option contract multiplier is not applied.
+
+Examples:
+
+- Vega is expressed per 1.00 change in volatility.
+- Theta is annualized.
+- Contract-level Greeks can be obtained by multiplying by
+  `Option.multiplier`.
+
+
+
+# Delta
+
+Delta measures sensitivity to the underlying asset price.
+
+$$
+\Delta=\frac{\partial V}{\partial S}
+$$
+
+Call:
+
+$$
+\Delta_c=e^{-qT}N(d_1)
+$$
+
+Put:
+
+$$
+\Delta_p=e^{-qT}(N(d_1)-1)
+$$
+
+
+
+# Gamma
+
+Gamma measures the sensitivity of Delta to changes in the underlying price.
+
+$$
+\Gamma=\frac{\partial^2V}{\partial S^2}
+$$
+
+Formula:
+
+$$
+\Gamma=
+\frac{e^{-qT}N'(d_1)}
+{S\sigma\sqrt{T}}
+$$
+
+Gamma is identical for European calls and puts with the same parameters.
+
+
+
+# Vega
+
+Vega measures sensitivity to volatility.
+
+$$
+\nu=\frac{\partial V}{\partial\sigma}
+$$
+
+Formula:
+
+$$
+\nu=
+Se^{-qT}N'(d_1)\sqrt{T}
+$$
+
+
+
+# Theta
+
+Theta measures sensitivity to the passage of time.
+
+$$
+\Theta=\frac{\partial V}{\partial t}
+$$
+
+The library reports annualized Theta.
+
+Daily Theta can be approximated as:
+
+$$
+\Theta_{daily}=\frac{\Theta}{365}
+$$
+
+
+
+# Rho
+
+Rho measures sensitivity to the risk-free interest rate.
+
+$$
+\rho=\frac{\partial V}{\partial r}
+$$
+
+Call:
+
+$$
+\rho_c=KT e^{-rT}N(d_2)
+$$
+
+Put:
+
+$$
+\rho_p=-KT e^{-rT}N(-d_2)
+$$
+
+
