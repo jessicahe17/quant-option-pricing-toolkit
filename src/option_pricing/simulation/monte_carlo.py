@@ -1,7 +1,7 @@
 import numpy as np
 
-from option_pricing.payoffs.base import Payoff
-from option_pricing.simulation.results import MonteCarloPricingResult
+from option_pricing.payoffs.base import Payoff, PayoffRequirement
+from option_pricing.simulation.results import MonteCarloPricingResult, SimulationResult
 
 
 class MonteCarloPricer:
@@ -29,26 +29,25 @@ class MonteCarloPricer:
 
 
 
-    def price(self, terminal_values: np.ndarray) -> MonteCarloPricingResult:
-        """Estimate the option price from simulated terminal values."""
+    def price(self, simulation_result: SimulationResult) -> MonteCarloPricingResult:
+        """Estimate the option price from simulated paths."""
 
-        if not isinstance(terminal_values, np.ndarray):
-            raise TypeError("terminal_values must be a NumPy array.")
+        if not isinstance(simulation_result, SimulationResult):
+            raise TypeError("simulation_result must be a SimulationResult.")
 
-        if terminal_values.ndim != 1:
-            raise ValueError("terminal_values must be a 1-D array.")
+        if self.payoff.requirement == PayoffRequirement.TERMINAL:
+            values = simulation_result.paths[:, -1]
 
-        if terminal_values.size < 2:
-            raise ValueError("terminal_values must contain at least two values.")
+        elif self.payoff.requirement == PayoffRequirement.PATH:
+            values = simulation_result.paths
 
-        if not np.issubdtype(terminal_values.dtype, np.number):
-            raise TypeError("terminal_values must contain numeric values.")
+        else:
+            raise ValueError(
+                f"Unsupported payoff requirement: "
+                f"{self.payoff.requirement}"
+                )
 
-        if not np.all(np.isfinite(terminal_values)):
-            raise ValueError("terminal_values must contain only finite values.")
-
-
-        payoff_values = self.payoff(terminal_values)
+        payoff_values = self.payoff(values)
 
         discount_factor = np.exp(-self.rate * self.maturity)
 
@@ -56,10 +55,10 @@ class MonteCarloPricer:
         price = discount_factor * mean_payoff
 
         sample_std = np.std(payoff_values, ddof=1)
-        standard_error = discount_factor * sample_std / np.sqrt(terminal_values.size)
+        standard_error = discount_factor * sample_std / np.sqrt(simulation_result.paths.shape[0])
 
         return MonteCarloPricingResult(
             price=float(price),
             standard_error=float(standard_error),
-            n_paths=terminal_values.size
+            n_paths=simulation_result.paths.shape[0]
             )
