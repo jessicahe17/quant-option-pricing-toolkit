@@ -27,8 +27,7 @@ $$
 with exact terminal solution
 
 $$
-S_T=S_0\exp\left[\left(r-q-\frac12\sigma^2\right)T+\sigma\sqrt{T}Z\right],
-\qquad Z\sim\mathcal{N}(0,1).
+S_T=S_0\exp\left[\left(r-q-\frac12\sigma^2\right)T+\sigma\sqrt{T}Z\right], \qquad Z\sim\mathcal{N}(0,1).
 $$
 
 The simulation therefore uses the risk-neutral drift $r-q$. The same framework applies to path-dependent derivatives, except that the payoff is a functional of the simulated path rather than only $S_T$.
@@ -57,8 +56,7 @@ $$
 and the Monte Carlo estimator is
 
 $$
-\hat V_{\mathrm{MC}}
-=e^{-rT}\frac1N\sum_{i=1}^N\Pi(S_T^{(i)}).
+\hat V_{\mathrm{MC}} = e^{-rT}\frac1N\sum_{i=1}^N\Pi(S_T^{(i)}).
 $$
 
 Its standard error is
@@ -159,9 +157,7 @@ The payoff declares its information requirement. Terminal-value payoffs receive 
 For path $j$, the arithmetic average over the 252 post-initial monitoring observations is
 
 $$
-\bar S^{(j)}
-=
-\frac1{252}\sum_{i=1}^{252}S_{t_i}^{(j)}.
+\bar S^{(j)} = \frac1{252}\sum_{i=1}^{252}S_{t_i}^{(j)}.
 $$
 
 The Asian call payoff is
@@ -173,9 +169,7 @@ $$
 with price estimator
 
 $$
-\hat V_{\mathrm{Asian}}
-=
-e^{-rT}\frac1N\sum_{j=1}^N\Pi^{(j)}.
+\hat V_{\mathrm{Asian}} = e^{-rT}\frac1N\sum_{j=1}^N\Pi^{(j)}.
 $$
 
 ### 4.3 Results
