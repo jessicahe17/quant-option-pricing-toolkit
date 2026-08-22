@@ -2,7 +2,10 @@ import pytest
 import numpy as np
 
 from option_pricing.payoffs.vanilla import EuropeanPut, EuropeanCall, AsianCall
-from option_pricing.simulation.results import MonteCarloPricingResult, SimulationResult
+from option_pricing.simulation.results import (
+    MonteCarloPricingResult, 
+    SimulationResult, 
+    AntitheticSimulationResult)
 from option_pricing.simulation.monte_carlo import MonteCarloPricer
 
 
@@ -153,3 +156,99 @@ def test_asian_call_path_dependent_pricing():
     assert result.n_paths == 3
     assert np.isclose(result.price, expected_price)
     assert np.isclose(result.standard_error, expected_stderr)
+
+
+def test_price_antithetic_terminal_payoff(pricer):
+    positive_paths = np.array([
+        [100.0, 120.0],
+        [100.0, 110.0],
+        [100.0, 130.0],
+    ])
+    negative_paths = np.array([
+        [100.0, 80.0],
+        [100.0, 95.0],
+        [100.0, 90.0],
+    ])
+    time_grid = np.array([0.0, 1.0])
+
+    simulation_result = AntitheticSimulationResult(
+        positive_paths=positive_paths,
+        negative_paths=negative_paths,
+        time_grid=time_grid,
+    )
+
+    result = pricer.price_antithetic(simulation_result)
+
+    expected_paired_payoffs = np.array([
+        10.0,
+        5.0,
+        15.0,
+    ])
+
+    expected_price = np.mean(expected_paired_payoffs)
+
+    expected_standard_error = (
+        np.std(expected_paired_payoffs, ddof=1)
+        / np.sqrt(expected_paired_payoffs.size)
+    )
+
+    assert result.price == pytest.approx(expected_price)
+    assert result.standard_error == pytest.approx(expected_standard_error)
+    assert result.n_paths == 6
+
+
+def test_price_antithetic_rejects_invalid_result(call):
+    pricer = MonteCarloPricer(
+        payoff=call,
+        rate=0.05,
+        maturity=1.0,
+    )
+
+    with pytest.raises(TypeError):
+        pricer.price_antithetic("invalid")
+
+
+def test_price_antithetic_path_dependent_payoff():
+    payoff = AsianCall(strike=100.0)
+
+    pricer = MonteCarloPricer(
+        payoff=payoff,
+        rate=0.0,
+        maturity=1.0,
+    )
+
+    positive_paths = np.array([
+        [100.0, 110.0, 120.0],
+        [100.0, 105.0, 115.0],
+    ])
+
+    negative_paths = np.array([
+        [100.0, 90.0, 80.0],
+        [100.0, 95.0, 105.0],
+    ])
+
+    time_grid = np.array([0.0, 0.5, 1.0])
+
+    simulation_result = AntitheticSimulationResult(
+        positive_paths=positive_paths,
+        negative_paths=negative_paths,
+        time_grid=time_grid,
+    )
+
+    result = pricer.price_antithetic(simulation_result)
+
+    expected_paired_payoffs = np.array([
+        7.5,
+        5.0,
+    ])
+
+    expected_price = np.mean(expected_paired_payoffs)
+
+    expected_standard_error = (
+        np.std(expected_paired_payoffs, ddof=1)
+        / np.sqrt(expected_paired_payoffs.size)
+    )
+
+    assert result.price == pytest.approx(expected_price)
+    assert result.standard_error == pytest.approx(expected_standard_error)
+    assert result.n_paths == 4

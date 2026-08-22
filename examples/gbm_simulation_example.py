@@ -4,7 +4,7 @@ from option_pricing.simulation.gbm import GBM
 from option_pricing.simulation.simulator import Simulator
 
 
-
+# Parameters
 initial_value = 100
 volatility = 0.2
 rate = 0.05

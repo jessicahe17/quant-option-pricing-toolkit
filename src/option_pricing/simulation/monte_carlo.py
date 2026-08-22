@@ -1,7 +1,11 @@
 import numpy as np
 
 from option_pricing.payoffs.base import Payoff, PayoffRequirement
-from option_pricing.simulation.results import MonteCarloPricingResult, SimulationResult
+from option_pricing.simulation.results import (
+    MonteCarloPricingResult,
+    SimulationResult,
+    AntitheticSimulationResult,
+)
 
 
 class MonteCarloPricer:
@@ -11,7 +15,9 @@ class MonteCarloPricer:
         if not isinstance(payoff, Payoff):
             raise TypeError("payoff must be a Payoff.")
 
-        if isinstance(rate, (bool, np.bool_)) or not isinstance(rate, (int, float, np.integer, np.floating)):
+        if isinstance(rate, (bool, np.bool_)) or not isinstance(
+            rate, (int, float, np.integer, np.floating)
+        ):
             raise TypeError("rate must be a numeric value.")
         if not np.isfinite(rate):
             raise ValueError("rate must be a finite number.")
@@ -28,7 +34,6 @@ class MonteCarloPricer:
         self.maturity = maturity
 
 
-
     def price(self, simulation_result: SimulationResult) -> MonteCarloPricingResult:
         """Estimate the option price from simulated paths."""
 
@@ -43,9 +48,8 @@ class MonteCarloPricer:
 
         else:
             raise ValueError(
-                f"Unsupported payoff requirement: "
-                f"{self.payoff.requirement}"
-                )
+                f"Unsupported payoff requirement: {self.payoff.requirement}"
+            )
 
         payoff_values = self.payoff(values)
 
@@ -55,10 +59,55 @@ class MonteCarloPricer:
         price = discount_factor * mean_payoff
 
         sample_std = np.std(payoff_values, ddof=1)
-        standard_error = discount_factor * sample_std / np.sqrt(simulation_result.paths.shape[0])
+        standard_error = (
+            discount_factor * sample_std / np.sqrt(simulation_result.paths.shape[0])
+        )
 
         return MonteCarloPricingResult(
             price=float(price),
             standard_error=float(standard_error),
-            n_paths=simulation_result.paths.shape[0]
+            n_paths=simulation_result.paths.shape[0],
+        )
+
+
+    def price_antithetic(
+        self, simulation_result: AntitheticSimulationResult
+    ) -> MonteCarloPricingResult:
+        """Estimate the option price using antithetic simulation results."""
+
+        if not isinstance(simulation_result, AntitheticSimulationResult):
+            raise TypeError("simulation_result must be an AntitheticSimulationResult.")
+
+        if self.payoff.requirement == PayoffRequirement.TERMINAL:
+            positive_values = simulation_result.positive_paths[:, -1]
+            negative_values = simulation_result.negative_paths[:, -1]
+
+        elif self.payoff.requirement == PayoffRequirement.PATH:
+            positive_values = simulation_result.positive_paths
+            negative_values = simulation_result.negative_paths
+
+        else:
+            raise ValueError(
+                f"Unsupported payoff requirement: {self.payoff.requirement}"
             )
+
+        positive_payoffs = self.payoff(positive_values)
+        negative_payoffs = self.payoff(negative_values)
+
+        paired_payoffs = 0.5 * (positive_payoffs + negative_payoffs)
+
+        discount_factor = np.exp(-self.rate * self.maturity)
+
+        mean_payoff = np.mean(paired_payoffs)
+        price = discount_factor * mean_payoff
+
+        sample_std = np.std(paired_payoffs, ddof=1)
+        n_pairs = paired_payoffs.size
+
+        standard_error = (discount_factor * sample_std / np.sqrt(n_pairs))
+
+        return MonteCarloPricingResult(
+            price=float(price),
+            standard_error=float(standard_error),
+            n_paths=2 * n_pairs
+        )
