@@ -13,11 +13,30 @@ class GBM(StochasticProcess):
     """
 
     def __init__(self, initial_value: float, volatility: float, rate: float, dividend_yield: float = 0.0) -> None:
+        fields = {
+            "initial_value": initial_value,
+            "volatility": volatility,
+            "rate": rate,
+            "dividend_yield": dividend_yield,
+        }
+
+        for name, value in fields.items():
+            if isinstance(value, (bool, np.bool_)) or not isinstance(
+                value, (int, float, np.integer, np.floating)
+            ):
+                raise TypeError(f"{name} must be a numeric value.")
+
+            if not np.isfinite(value):
+                raise ValueError(f"{name} must be a finite number.")
+
         if initial_value <= 0:
             raise ValueError("initial_value must be positive.")
 
         if volatility < 0:
             raise ValueError("volatility must be non-negative.")
+
+        if dividend_yield < 0:
+            raise ValueError("dividend_yield must be non-negative.")
 
         self._initial_value = initial_value
         self.volatility = volatility

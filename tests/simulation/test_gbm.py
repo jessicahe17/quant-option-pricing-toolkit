@@ -31,6 +31,11 @@ def test_negative_volatility():
         GBM(initial_value=100, volatility=-0.1, rate=0.05)
 
 
+def test_negative_dividend_yield():
+    with pytest.raises(ValueError, match="dividend_yield must be non-negative."):
+        GBM(initial_value=100, volatility=0.1, rate=0.05, dividend_yield=-0.01)
+
+
 def test_invalid_dt():
     gbm = GBM(initial_value=100.0, volatility=0.2, rate=0.05)
 

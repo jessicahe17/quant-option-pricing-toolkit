@@ -134,3 +134,25 @@ def test_asian_call_invalid_paths():
         
     with pytest.raises(ValueError, match="paths must contain only finite values."):
         asian_call(np.array([[100.0, 110.0, np.inf]]))
+
+
+@pytest.mark.parametrize(
+    "payoff_class",
+    [EuropeanCall, EuropeanPut, AsianCall],
+)
+@pytest.mark.parametrize(
+    "strike",
+    [np.nan, np.inf, -np.inf],
+)
+def test_rejects_non_finite_strike(payoff_class, strike):
+    with pytest.raises(ValueError, match="strike must be a finite number."):
+        payoff_class(strike=strike)
+
+
+@pytest.mark.parametrize(
+    "payoff_class",
+    [EuropeanCall, EuropeanPut, AsianCall],
+)
+def test_rejects_boolean_strike(payoff_class):
+    with pytest.raises(TypeError, match="strike must be a numeric value."):
+        payoff_class(strike=True)

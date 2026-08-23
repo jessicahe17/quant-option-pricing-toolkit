@@ -54,9 +54,8 @@ def test_invalid_maturity(call):
 
 
 def test_invalid_input_type(pricer):
-    invalid_input = np.array([100, 110])
     with pytest.raises(TypeError, match="simulation_result must be a SimulationResult."):
-        pricer.price(invalid_input)
+        pricer.price("invalid_input")
 
 
 def test_correct_call_price_small_sample(pricer):
@@ -116,7 +115,7 @@ def test_correct_discounting(call):
         np.array([[100, 105, 100], 
                   [100, 106, 110], 
                   [100, 110, 120]]),
-        np.array([0, 0.5, 1]))
+        np.array([0.0, 1.0, 2.0]))
 
     expected_price = discount_factor * 10.0
     expected_se = discount_factor * 10.0 / np.sqrt(3)
@@ -197,13 +196,7 @@ def test_price_antithetic_terminal_payoff(pricer):
     assert result.n_paths == 6
 
 
-def test_price_antithetic_rejects_invalid_result(call):
-    pricer = MonteCarloPricer(
-        payoff=call,
-        rate=0.05,
-        maturity=1.0,
-    )
-
+def test_price_antithetic_rejects_invalid_result(pricer):
     with pytest.raises(TypeError):
         pricer.price_antithetic("invalid")
 
@@ -252,3 +245,33 @@ def test_price_antithetic_path_dependent_payoff():
     assert result.price == pytest.approx(expected_price)
     assert result.standard_error == pytest.approx(expected_standard_error)
     assert result.n_paths == 4
+
+
+def test_price_rejects_mismatched_maturity(pricer):
+    simulation_result = SimulationResult(
+        paths=np.array([
+            [100.0, 105.0, 110.0],
+            [100.0, 110.0, 120.0],
+        ]),
+        time_grid=np.array([0.0, 0.5, 2.0]),
+    )
+
+    with pytest.raises(ValueError, match="Simulation maturity must match pricer maturity."):
+        pricer.price(simulation_result)
+
+
+def test_price_antithetic_rejects_mismatched_maturity(pricer):
+    simulation_result = AntitheticSimulationResult(
+        positive_paths=np.array([
+            [100.0, 110.0],
+            [100.0, 120.0],
+        ]),
+        negative_paths=np.array([
+            [100.0, 90.0],
+            [100.0, 80.0],
+        ]),
+        time_grid=np.array([0.0, 2.0]),
+    )
+
+    with pytest.raises(ValueError, match="Simulation maturity must match pricer maturity."):
+        pricer.price_antithetic(simulation_result)

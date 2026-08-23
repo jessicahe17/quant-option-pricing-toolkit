@@ -168,3 +168,23 @@ def test_rejects_non_positive_theoretical_log_std():
         validate_gbm_distribution(valid_prices, 0.0, 0.0)
     with pytest.raises(ValueError, match="theoretical_log_std must be strictly positive."):
         validate_gbm_distribution(valid_prices, 0.0, -1.5)
+
+
+def test_validate_gbm_moments_rejects_non_finite_values():
+    prices_with_nan = np.array([100.0, np.nan, 105.0])
+
+    with pytest.raises(ValueError, match="terminal_prices must contain only finite values."):
+        validate_gbm_moments(
+            terminal_prices=prices_with_nan,
+            theoretical_mean=100.0,
+            theoretical_variance=10.0,
+        )
+
+    prices_with_inf = np.array([100.0, np.inf, 105.0])
+
+    with pytest.raises(ValueError, match="terminal_prices must contain only finite values."):
+        validate_gbm_moments(
+            terminal_prices=prices_with_inf,
+            theoretical_mean=100.0,
+            theoretical_variance=10.0,
+        )

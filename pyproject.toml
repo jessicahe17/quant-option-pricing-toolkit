@@ -7,12 +7,12 @@ build-backend = "setuptools.build_meta"
 name = "option-pricing-toolkit"
 version = "0.1.0"
 description = "A quantitative option pricing library implemented in Python"
+readme = "README.md"
 requires-python = ">=3.10"
 
 dependencies = [
     "numpy",
-    "scipy",
-    "pandas"
+    "scipy"
 ]
 
 

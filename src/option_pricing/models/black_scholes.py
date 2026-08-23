@@ -43,7 +43,7 @@ class BlackScholesModel(PricingModel):
 
 
     def _calculate_greeks(self, option: Option, state: _BlackScholesState) -> Greeks:
-        if (state.d1 is None) or (state.volatility is None):
+        if (state.d1 is None) or (state.d2 is None):
             return Greeks(
                 delta=None,
                 gamma=None,
@@ -165,12 +165,12 @@ class BlackScholesModel(PricingModel):
                       / (2 * np.sqrt(state.time)))
 
         if option.is_call:
-            theta = (first_term - state.dividend * state.spot * np.exp(-state.dividend * state.time) * norm.cdf(state.d1)
-                     + state.rate * state.strike * np.exp(-state.rate * state.time) * norm.cdf(state.d2))
+            theta = (first_term + state.dividend * state.spot * np.exp(-state.dividend * state.time) * norm.cdf(state.d1)
+                     - state.rate * state.strike * np.exp(-state.rate * state.time) * norm.cdf(state.d2))
 
         elif option.is_put:
-            theta = (first_term + state.dividend * state.spot * np.exp(-state.dividend * state.time) * norm.cdf(-state.d1)
-                     - state.rate * state.strike * np.exp(-state.rate * state.time) * norm.cdf(-state.d2))
+            theta = (first_term - state.dividend * state.spot * np.exp(-state.dividend * state.time) * norm.cdf(-state.d1)
+                     + state.rate * state.strike * np.exp(-state.rate * state.time) * norm.cdf(-state.d2))
 
         else:
             raise ValueError("Unsupported option type.")

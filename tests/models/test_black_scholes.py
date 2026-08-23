@@ -103,10 +103,10 @@ def test_black_scholes_rejects_american_option(underlying, market):
         )
 
     with pytest.raises(NotImplementedError, match="Black-Scholes only supports European options."):
-        BlackScholesModel().evaluate(option, market).price
+        BlackScholesModel().evaluate(option, market)
 
 
-def test_boundary_depp_otm_call(underlying):
+def test_boundary_deep_otm_call(underlying):
     call = Option(underlying, 100, date(2027,1,1), OptionType.CALL, ExerciseStyle.EUROPEAN)
     market = MarketEnvironment({underlying: MarketData(1, 0.2, 0.05)}, date(2026, 1, 1))
     model = BlackScholesModel()
@@ -115,7 +115,7 @@ def test_boundary_depp_otm_call(underlying):
     assert price < 1e-6
 
 
-def test_boundary_depp_otm_put(underlying):
+def test_boundary_deep_otm_put(underlying):
     put = Option(underlying, 10, date(2027,1,1), OptionType.PUT, ExerciseStyle.EUROPEAN)
     market = MarketEnvironment({underlying: MarketData(10000, 0.2, 0.05)}, date(2026, 1, 1))
     model = BlackScholesModel()
@@ -300,7 +300,52 @@ def test_call_put_theta_differ(call_opt, put_opt, market):
 def test_theta_analytical_value(call_opt, market):
     model = BlackScholesModel()
     result = model.evaluate(call_opt, market)
-    assert result.greeks.theta == pytest.approx(-1.0908, rel=1e-3)
+    assert result.greeks.theta == pytest.approx(-6.41403, rel=1e-3)
+
+
+def test_theta_matches_finite_difference_with_dividend(underlying):
+    option = Option(
+        underlying=underlying,
+        strike=100,
+        expiration_date=date(2027, 1, 1),
+        option_type=OptionType.CALL,
+        exercise_style=ExerciseStyle.EUROPEAN,
+    )
+
+    market_today = MarketEnvironment(
+        {
+            underlying: MarketData(
+                spot=100,
+                volatility=0.2,
+                risk_free_rate=0.05,
+                dividend_yield=0.03,
+            )
+        },
+        date(2026, 1, 1),
+    )
+
+    market_tomorrow = MarketEnvironment(
+        {
+            underlying: MarketData(
+                spot=100,
+                volatility=0.2,
+                risk_free_rate=0.05,
+                dividend_yield=0.03,
+            )
+        },
+        date(2026, 1, 2),
+    )
+
+    model = BlackScholesModel()
+
+    result_today = model.evaluate(option, market_today)
+    result_tomorrow = model.evaluate(option, market_tomorrow)
+
+    dt = 1 / 365
+
+    numerical_theta = (result_tomorrow.price - result_today.price) / dt
+
+    assert result_today.greeks.theta == pytest.approx(numerical_theta, rel=1e-2)
 
 
 def test_call_positive_rho(call_opt, market):

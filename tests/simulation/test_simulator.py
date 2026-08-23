@@ -26,7 +26,7 @@ def antithetic_simulator(gbm, rng):
     return AntitheticSimulator(process=gbm, maturity=1.0, steps=10, n_paths=100, rng=rng)
 
 
-def test_valid_creation(gbm, rng, simulator):
+def test_simulator_valid_creation(gbm, rng, simulator):
     assert simulator.process is gbm
     assert simulator.maturity == 1.0
     assert simulator.steps == 10
@@ -108,7 +108,7 @@ def test_time_grid_ends_at_maturity(gbm, rng):
     assert result.time_grid[-1] == maturity
 
 
-def test_reproducibility(gbm):
+def test_simulator_reproducibility(gbm):
     rng1 = np.random.default_rng(42)
     rng2 = np.random.default_rng(42)
 
@@ -140,7 +140,7 @@ def test_gbm_paths_are_positive(simulator):
     assert np.all(result.paths > 0)
 
 
-def test_valid_creation(gbm, rng, antithetic_simulator):
+def test_antithetic_simulator_valid_creation(gbm, rng, antithetic_simulator):
     assert antithetic_simulator.process is gbm
     assert antithetic_simulator.maturity == 1.0
     assert antithetic_simulator.steps == 10
@@ -164,7 +164,7 @@ def test_output_shapes(antithetic_simulator):
     assert result.time_grid.shape == (n_steps,)
 
 
-def test_reproducibility(gbm):
+def test_antithetic_simulator_reproducibility(gbm):
     rng1 = np.random.default_rng(42)
     rng2 = np.random.default_rng(42)
 

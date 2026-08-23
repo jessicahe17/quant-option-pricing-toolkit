@@ -1,4 +1,5 @@
 import pytest
+import numpy as np
 from dataclasses import FrozenInstanceError
 
 from option_pricing.market.market_data import MarketData
@@ -48,13 +49,6 @@ def test_negative_but_valid_interest_rate():
     assert data.risk_free_rate == -0.05
 
 
-def test_invalid_interest_rate():
-    with pytest.raises(ValueError, match="Risk-free rate must be greater than -100%."):
-        MarketData(spot=150, volatility=0.25, risk_free_rate=-1)
-        
-    with pytest.raises(ValueError, match="Risk-free rate must be greater than -100%."):
-        MarketData(spot=100, volatility=0.2, risk_free_rate=-1.05)
-
 
 def test_invalid_dividend_yield():
     with pytest.raises(ValueError, match="Dividend yield cannot be negative."):
@@ -75,3 +69,45 @@ def test_market_data_immutability():
 
     with pytest.raises(FrozenInstanceError):
         data.dividend_yield = 0.02
+
+
+def test_large_negative_interest_rate_is_allowed():
+    data = MarketData(
+        spot=100,
+        volatility=0.2,
+        risk_free_rate=-1.05,
+    )
+
+    assert data.risk_free_rate == -1.05
+
+
+def test_market_data_rejects_boolean_values():
+    with pytest.raises(TypeError, match="spot must be a numeric value."):
+        MarketData(
+            spot=True,
+            volatility=0.2,
+            risk_free_rate=0.05,
+        )
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("spot", np.nan),
+        ("volatility", np.inf),
+        ("risk_free_rate", -np.inf),
+        ("dividend_yield", np.nan),
+    ],
+)
+def test_market_data_rejects_non_finite_values(field, value):
+    kwargs = {
+        "spot": 100.0,
+        "volatility": 0.2,
+        "risk_free_rate": 0.05,
+        "dividend_yield": 0.02,
+    }
+
+    kwargs[field] = value
+
+    with pytest.raises(ValueError, match=f"{field} must be a finite number."):
+        MarketData(**kwargs)

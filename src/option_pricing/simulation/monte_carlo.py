@@ -40,6 +40,16 @@ class MonteCarloPricer:
         if not isinstance(simulation_result, SimulationResult):
             raise TypeError("simulation_result must be a SimulationResult.")
 
+        n_paths = simulation_result.paths.shape[0]
+
+        if n_paths < 2:
+            raise ValueError(
+                "At least two simulated paths are required to estimate standard error."
+                )
+
+        if not np.isclose(simulation_result.time_grid[-1], self.maturity):
+            raise ValueError("Simulation maturity must match pricer maturity.")
+
         if self.payoff.requirement == PayoffRequirement.TERMINAL:
             values = simulation_result.paths[:, -1]
 
@@ -60,13 +70,13 @@ class MonteCarloPricer:
 
         sample_std = np.std(payoff_values, ddof=1)
         standard_error = (
-            discount_factor * sample_std / np.sqrt(simulation_result.paths.shape[0])
+            discount_factor * sample_std / np.sqrt(n_paths)
         )
 
         return MonteCarloPricingResult(
             price=float(price),
             standard_error=float(standard_error),
-            n_paths=simulation_result.paths.shape[0],
+            n_paths=n_paths,
         )
 
 
@@ -77,6 +87,16 @@ class MonteCarloPricer:
 
         if not isinstance(simulation_result, AntitheticSimulationResult):
             raise TypeError("simulation_result must be an AntitheticSimulationResult.")
+
+        n_pairs = simulation_result.positive_paths.shape[0]
+
+        if n_pairs < 2:
+            raise ValueError(
+                "At least two antithetic path pairs are required to estimate standard error."
+                )
+
+        if not np.isclose(simulation_result.time_grid[-1], self.maturity):
+            raise ValueError("Simulation maturity must match pricer maturity.")
 
         if self.payoff.requirement == PayoffRequirement.TERMINAL:
             positive_values = simulation_result.positive_paths[:, -1]

@@ -44,6 +44,9 @@ def validate_gbm_moments(
     if terminal_prices.size < 2:
         raise ValueError("At least two terminal prices are required.")
 
+    if not np.all(np.isfinite(terminal_prices)):
+        raise ValueError("terminal_prices must contain only finite values.")
+
     sample_mean = float(np.mean(terminal_prices))
     sample_variance = float(np.var(terminal_prices, ddof=1))
     standard_error = np.sqrt(sample_variance / terminal_prices.size)

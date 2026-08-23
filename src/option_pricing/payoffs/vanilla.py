@@ -10,8 +10,14 @@ class EuropeanCall(TerminalPayoff):
     strike: float
 
     def __post_init__(self) -> None:
-        if not isinstance(self.strike, (int, float, np.integer, np.floating)):
+        if isinstance(self.strike, (bool, np.bool_)) or not isinstance(
+            self.strike,
+            (int, float, np.integer, np.floating)
+            ):
             raise TypeError("strike must be a numeric value.")
+
+        if not np.isfinite(self.strike):
+            raise ValueError("strike must be a finite number.")
 
         if self.strike <= 0:
             raise ValueError("strike must be strictly positive.")
@@ -29,8 +35,14 @@ class EuropeanPut(TerminalPayoff):
     strike: float
 
     def __post_init__(self) -> None:
-        if not isinstance(self.strike, (int, float, np.integer, np.floating)):
+        if isinstance(self.strike, (bool, np.bool_)) or not isinstance(
+            self.strike,
+            (int, float, np.integer, np.floating)
+            ):
             raise TypeError("strike must be a numeric value.")
+
+        if not np.isfinite(self.strike):
+            raise ValueError("strike must be a finite number.")
 
         if self.strike <= 0:
             raise ValueError("strike must be strictly positive.")
@@ -48,11 +60,18 @@ class AsianCall(PathDependentPayoff):
     strike: float
 
     def __post_init__(self) -> None:
-        if not isinstance(self.strike, (int, float, np.integer, np.floating)):
+        if isinstance(self.strike, (bool, np.bool_)) or not isinstance(
+            self.strike,
+            (int, float, np.integer, np.floating)
+            ):
             raise TypeError("strike must be a numeric value.")
+
+        if not np.isfinite(self.strike):
+            raise ValueError("strike must be a finite number.")
 
         if self.strike <= 0:
             raise ValueError("strike must be strictly positive.")
+
 
     def __call__(self, paths: np.ndarray) -> Numeric:
         if not isinstance(paths, np.ndarray):
