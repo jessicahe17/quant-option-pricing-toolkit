@@ -17,17 +17,13 @@ $$
 If there are $M$ independent antithetic pairs, the price estimator is
 
 $$
-\hat V_{\mathrm{AV}}
-=
-e^{-rT}\frac{1}{M}\sum_{i=1}^{M}A_i,
+\hat V_{\mathrm{AV}} = e^{-rT}\frac{1}{M}\sum_{i=1}^{M}A_i,
 $$
 
 with estimated standard error
 
 $$
-\mathrm{SE}_{\mathrm{AV}}
-=
-e^{-rT}\frac{s_A}{\sqrt{M}},
+\mathrm{SE}_{\mathrm{AV}} = e^{-rT}\frac{s_A}{\sqrt{M}},
 $$
 
 where $s_A$ is the sample standard deviation of the pair averages.
