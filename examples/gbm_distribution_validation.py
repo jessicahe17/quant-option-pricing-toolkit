@@ -2,13 +2,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy import stats
 
-from option_pricing.simulation.gbm import GBM
-from option_pricing.simulation.simulator import Simulator
-from option_pricing.validation.gbm import (
+from option_pricing.simulation import GBM, Simulator
+from option_pricing.validation import (
     theoretical_log_mean,
     theoretical_log_std,
-    validate_gbm_distribution
-    )
+    validate_gbm_distribution,
+)
 
 
 
@@ -46,7 +45,7 @@ simulator = Simulator(
     )
 
 
-# Run the simulaton
+# Run the simulation
 simulation_result = simulator.run()
 
 

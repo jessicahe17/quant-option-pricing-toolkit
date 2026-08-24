@@ -8,13 +8,31 @@ Compare standard Monte Carlo with antithetic Monte Carlo under the same total pa
 
 For each standard normal draw $Z$, antithetic sampling also uses $-Z$.
 
-For each pair of discounted payoffs,
+For each antithetic pair, let $Y_i^{(+)}$ and $Y_i^{(-)}$ denote the undiscounted payoff observations. Their pair average is
 
 $$
 A_i = \frac{Y_i^{(+)} + Y_i^{(-)}}{2}.
 $$
 
-The antithetic estimator is based on the independent pair averages $A_i$, so its standard error is computed from the sample standard deviation of these pair averages.
+If there are $M$ independent antithetic pairs, the price estimator is
+
+$$
+\hat V_{\mathrm{AV}}
+=
+e^{-rT}\frac{1}{M}\sum_{i=1}^{M}A_i,
+$$
+
+with estimated standard error
+
+$$
+\mathrm{SE}_{\mathrm{AV}}
+=
+e^{-rT}\frac{s_A}{\sqrt{M}},
+$$
+
+where $s_A$ is the sample standard deviation of the pair averages.
+
+The reported path count is the total number of simulated paths, so $N=2M$.
 
 ## Experimental Setup
 

@@ -1,15 +1,16 @@
 import numpy as np
 from datetime import date
 
-from option_pricing.instruments.underlying import Equity
-from option_pricing.instruments.option import Option, OptionType, ExerciseStyle
-from option_pricing.market.market_data import MarketData
-from option_pricing.market.market_environment import MarketEnvironment
-from option_pricing.models.black_scholes import BlackScholesModel
-from option_pricing.payoffs.vanilla import EuropeanCall
-from option_pricing.simulation.gbm import GBM
-from option_pricing.simulation.simulator import Simulator
-from option_pricing.simulation.monte_carlo import MonteCarloPricer
+from option_pricing.instruments import (
+    Equity,
+    ExerciseStyle,
+    Option,
+    OptionType,
+)
+from option_pricing.market import MarketData, MarketEnvironment
+from option_pricing.models import BlackScholesModel
+from option_pricing.payoffs import EuropeanCall
+from option_pricing.simulation import GBM, MonteCarloPricer, Simulator
 
 
 # Parameters
@@ -62,13 +63,12 @@ simulator = Simulator(
     )
 
 simulation_result = simulator.run()
-terminal_values = simulation_result.paths[:, -1]
 
 
 # Monte Carlo pricing
 payoff = EuropeanCall(strike=K)
 pricer = MonteCarloPricer(payoff=payoff, rate=r, maturity=T)
-mc_result = pricer.price(terminal_values)
+mc_result = pricer.price(simulation_result)
 
 
 

@@ -1,10 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from option_pricing.payoffs.vanilla import AsianCall
-from option_pricing.simulation.monte_carlo import MonteCarloPricer
-from option_pricing.simulation.gbm import GBM
-from option_pricing.simulation.simulator import Simulator
+from option_pricing.payoffs import AsianCall
+from option_pricing.simulation import GBM, MonteCarloPricer, Simulator
 
 
 # parameters

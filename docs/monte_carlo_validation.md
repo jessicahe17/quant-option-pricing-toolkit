@@ -101,7 +101,7 @@ The Monte Carlo results are:
 | 95% confidence interval | [9.172376, 9.345204] |
 | BS price inside CI | Yes |
 
-The Monte Carlo estimate is therefore statistically consistent with the Black-Scholes benchmark at the 95% confidence level for this parameter configuration.
+The Black-Scholes benchmark lies within the Monte Carlo 95% confidence interval, and the standardized error of 0.7209 is consistent with ordinary Monte Carlo sampling variability for this run.
 
 ### 3.3 Convergence Analysis
 
@@ -112,7 +112,7 @@ N\in\{5{,}000,10{,}000,25{,}000,50{,}000,100{,}000,250{,}000\}.
 $$
 
 | Paths ($N$) | MC Price | Absolute Error | Standard Error | $\mathrm{SE}\sqrt N$ |
-| :--- | ---: | ---: | ---: | ---: |
+| ---: | ---: | ---: | ---: | ---: |
 | 5,000 | 9.558189 | 0.331183 | 0.200544 | 14.180570 |
 | 10,000 | 9.370442 | 0.143436 | 0.139766 | 13.976604 |
 | 25,000 | 9.138996 | 0.088009 | 0.086631 | 13.697536 |
@@ -138,17 +138,11 @@ Unlike the European call, the arithmetic-average Asian call depends on the full 
 
 The same infrastructure is reused:
 
-$$
-\mathrm{GBM}
-\rightarrow
-\mathrm{Simulator}
-\rightarrow
-\mathrm{SimulationResult}
-\rightarrow
-\mathrm{MonteCarloPricer}
-\rightarrow
-\mathrm{AsianCall}.
-$$
+```text
+GBM → Simulator → SimulationResult
+                         ↓
+AsianCall → MonteCarloPricer → MonteCarloPricingResult
+```
 
 The payoff declares its information requirement. Terminal-value payoffs receive the terminal values, while path-dependent payoffs receive the full paths. This keeps the Monte Carlo pricer generic and avoids derivative-specific pricing branches.
 

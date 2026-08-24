@@ -1,10 +1,10 @@
 import numpy as np
 
-from option_pricing.payoffs.vanilla import EuropeanCall
-from option_pricing.simulation.gbm import GBM
-from option_pricing.simulation.monte_carlo import MonteCarloPricer
-from option_pricing.simulation.simulator import (
+from option_pricing.payoffs import EuropeanCall
+from option_pricing.simulation import (
     AntitheticSimulator,
+    GBM,
+    MonteCarloPricer,
     Simulator,
 )
 

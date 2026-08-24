@@ -2,15 +2,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 from datetime import date
 
-from option_pricing.instruments.underlying import Equity
-from option_pricing.instruments.option import Option, OptionType, ExerciseStyle
-from option_pricing.market.market_data import MarketData
-from option_pricing.market.market_environment import MarketEnvironment
-from option_pricing.models.black_scholes import BlackScholesModel
-from option_pricing.payoffs.vanilla import EuropeanCall
-from option_pricing.simulation.gbm import GBM
-from option_pricing.simulation.simulator import Simulator
-from option_pricing.simulation.monte_carlo import MonteCarloPricer
+from option_pricing.instruments import (
+    Equity,
+    ExerciseStyle,
+    Option,
+    OptionType,
+)
+from option_pricing.market import MarketData, MarketEnvironment
+from option_pricing.models import BlackScholesModel
+from option_pricing.payoffs import EuropeanCall
+from option_pricing.simulation import GBM, MonteCarloPricer, Simulator
 
 
 # Parameters
@@ -82,13 +83,9 @@ for n_paths in path_counts:
 
     simulation_result = simulator.run()
 
-    terminal_values = simulation_result.paths[:, -1]
-
-    mc_result = pricer.price(terminal_values)
+    mc_result = pricer.price(simulation_result)
 
     absolute_error = abs(mc_result.price - bs_price)
-
-    standardized_error = ((mc_result.price - bs_price) / mc_result.standard_error)
 
     scaled_standard_error = (mc_result.standard_error * np.sqrt(n_paths))
 
@@ -98,7 +95,6 @@ for n_paths in path_counts:
             mc_result.price,
             absolute_error,
             mc_result.standard_error,
-            standardized_error,
             scaled_standard_error,
             )
         )
@@ -126,7 +122,6 @@ for (
     mc_price,
     absolute_error,
     standard_error,
-    standardized_error,
     scaled_standard_error,
     ) in results:
 

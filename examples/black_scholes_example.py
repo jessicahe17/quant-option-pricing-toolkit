@@ -10,11 +10,14 @@ This script demonstrates the intended public workflow:
 
 from datetime import date
 
-from option_pricing.instruments.underlying import Equity
-from option_pricing.instruments.option import Option, OptionType, ExerciseStyle
-from option_pricing.market.market_data import MarketData
-from option_pricing.market.market_environment import MarketEnvironment
-from option_pricing.models.black_scholes import BlackScholesModel
+from option_pricing.instruments import (
+    Equity,
+    ExerciseStyle,
+    Option,
+    OptionType,
+)
+from option_pricing.market import MarketData, MarketEnvironment
+from option_pricing.models import BlackScholesModel
 
 
 def main():

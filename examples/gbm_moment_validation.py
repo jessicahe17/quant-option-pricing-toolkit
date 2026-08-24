@@ -1,8 +1,11 @@
 import numpy as np
 
-from option_pricing.simulation.gbm import GBM
-from option_pricing.simulation.simulator import Simulator
-from option_pricing.validation.gbm import theoretical_mean, theoretical_variance, validate_gbm_moments
+from option_pricing.simulation import GBM, Simulator
+from option_pricing.validation import (
+    theoretical_mean,
+    theoretical_variance,
+    validate_gbm_moments,
+)
 
 
 
@@ -36,7 +39,7 @@ simulator = Simulator(
     )
 
 
-# Run the simulaton
+# Run the simulation
 simulation_result = simulator.run()
 
 
@@ -64,9 +67,9 @@ result = validate_gbm_moments(
 
 
 # Print results
-print(f"Sample mean:        {result.sample_mean:.6f}")
-print(f"Theoretical mean:   {result.theoretical_mean:.6f}")
-print(f"Sample variance:    {result.sample_variance:.6f}")
-print(f"Theoretical variance:{result.theoretical_variance:.6f}")
-print(f"Standard error:     {result.standard_error:.6f}")
-print(f"Standardized error: {result.standardized_error:.6f}")
+print(f"Sample mean:          {result.sample_mean:.6f}")
+print(f"Theoretical mean:     {result.theoretical_mean:.6f}")
+print(f"Sample variance:      {result.sample_variance:.6f}")
+print(f"Theoretical variance: {result.theoretical_variance:.6f}")
+print(f"Standard error:       {result.standard_error:.6f}")
+print(f"Standardized error:   {result.standardized_error:.6f}")

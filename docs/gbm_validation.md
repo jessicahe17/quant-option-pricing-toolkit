@@ -14,7 +14,7 @@ Under the risk-neutral measure,
 $$ dS_t = (r-q)S_t dt + \sigma S_t dW_t^Q. $$
 
 The simulator uses the exact GBM transition:
-$$ S_{t+\Delta t} = S_t \exp\left[ \left(r-q-\frac12 \sigma^2 \right) \Delta t + \sigma\sqrt{\Delta t}Z \right], \qquad Z\sim N(0,1). $$
+$$ S_{t+\Delta t} = S_t \exp\left[ \left(r-q-\frac12 \sigma^2 \right) \Delta t + \sigma\sqrt{\Delta t}Z \right], \qquad Z\sim \mathcal{N}(0,1). $$
 
 Therefore,
 $$ E[S_T] = S_0 e^{(r-q)T}, $$
@@ -54,7 +54,7 @@ These results are consistent with the theoretical GBM moments.
 
 ### Distributional Validation
 For the baseline parameters,
-$$ \ln(S_T) \sim N(4.615170, 0.2^2). $$
+$$ \ln(S_T) \sim \mathcal{N}(4.615170, 0.2^2). $$
 
 The Kolmogorov-Smirnov test gives:
 
