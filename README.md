@@ -120,7 +120,7 @@ git clone https://github.com/jessicahe17/quant-option-pricing-toolkit.git
 cd quant-option-pricing-toolkit
 python -m venv .venv
 source .venv/bin/activate
-pip install -e ".[dev]"
+python -m pip install -e ".[dev]"
 ```
 
 The project requires Python 3.10 or later. Core dependencies are NumPy and SciPy; the development extras include pytest and Matplotlib for testing and numerical experiments.
@@ -232,7 +232,7 @@ The project includes a pytest-based test suite covering:
 Run the full test suite with:
 
 ```bash
-pytest
+python -m pytest
 ```
 
 ## Documentation

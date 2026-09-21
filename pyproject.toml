@@ -6,9 +6,10 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "option-pricing-toolkit"
 version = "0.1.0"
-description = "A quantitative option pricing library implemented in Python"
+description = "A quantitative finance toolkit for analytical and Monte Carlo option pricing, simulation, and numerical validation"
 readme = "README.md"
 requires-python = ">=3.10"
+license = "MIT"
 
 dependencies = [
     "numpy",
@@ -21,3 +22,7 @@ dev = [
     "pytest",
     "matplotlib"
 ]
+
+
+[project.urls]
+Repository = "https://github.com/jessicahe17/quant-option-pricing-toolkit"
